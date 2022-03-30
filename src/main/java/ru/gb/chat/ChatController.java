@@ -8,6 +8,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 public class ChatController {
+
     @FXML
     public TextArea messageArea;
 
@@ -25,6 +26,10 @@ public class ChatController {
         }else{
             alert.showAndWait();
         }
+    }
+
+    public void initialize() {
+        messageArea.setStyle("-fx-control-inner-background: #efd0a5");
     }
 
     public void exitChat(ActionEvent actionEvent) {
