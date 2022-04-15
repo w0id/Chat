@@ -5,7 +5,7 @@ import java.util.List;
 
 public class InMemoryAuthService implements AuthService {
 
-    private List<UserData> users;
+    private final List<UserData> users;
     private static class UserData {
         private final String login;
         private final String password;
@@ -18,6 +18,13 @@ public class InMemoryAuthService implements AuthService {
         }
     }
 
+    public InMemoryAuthService() {
+        users = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            users.add(new UserData("login" + i, "pass" + i, "nick" + i));
+        }
+    }
+
     @Override
     public String getNickByLoginAndPassword(String login, String password) {
         for (UserData user : users) {
@@ -26,14 +33,6 @@ public class InMemoryAuthService implements AuthService {
             }
         }
         return null;
-    }
-
-    @Override
-    public void start() {
-        users = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            users.add(new UserData("login" + i, "pass" + i, "nick" + i));
-        }
     }
 
     @Override

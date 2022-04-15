@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import ru.gb.chat.Command;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -31,9 +32,9 @@ public class ClientController {
 
     private final Alert emptyMessageField = new Alert(Alert.AlertType.WARNING,"Введите текст сообщения", ButtonType.OK);
 
-    public void setErrorText(final String errorText) {
+    public void setErrorText(String[] errorText) {
         Platform.runLater(() -> {
-            Alert authError = new Alert(Alert.AlertType.ERROR,errorText, ButtonType.OK);
+            Alert authError = new Alert(Alert.AlertType.ERROR, errorText[0], ButtonType.OK);
             authError.showAndWait();
         });
     }
@@ -67,13 +68,13 @@ public class ClientController {
     }
 
     public void exitChat() {
-        client.sendMessage("/end");
+        client.sendMessage(Command.END);
         Platform.exit();
         System.exit(0);
     }
 
     public void authButtonClick() {
-        client.sendMessage("/auth "+ loginField.getText() + " " + passwordField.getText());
+        client.sendMessage(Command.AUTH, loginField.getText(), passwordField.getText());
     }
 
     public void addMessage(final String message) {

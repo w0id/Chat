@@ -1,5 +1,7 @@
 package ru.gb.chat.client;
 
+import ru.gb.chat.Command;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -66,12 +68,20 @@ public class ChatClient {
         while (true) {
             try {
                 final String msg = in.readUTF();
-                if ("/end".equals(msg)) {
-                    controller.toggleBoxesVisibility(false);
-                    closeConnection();
-                    break;
+                if (Command.isCommand(msg)) {
+                    final Command command = Command.getCommand(msg);
+                    final String[] params = command.parse(msg);
+                    if (command == Command.END) {
+                        controller.toggleBoxesVisibility(false);
+                        closeConnection();
+                        break;
+                    }
+                    if (command == Command.ERROR) {
+                        controller.setErrorText(params);
+                    }
+                } else {
+                    controller.addMessage(msg);
                 }
-                controller.addMessage(msg);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -82,26 +92,25 @@ public class ChatClient {
         while (true) {
             try {
                 final String msg = in.readUTF();
-                if ("/end".equals(msg)) {
-                    isDisconnecting = true;
-                    break;
-                }
-                if (msg.startsWith("/authError")) {
-                    controller.setErrorText("Неверный логин или пароль");
-                    controller.loginField.clear();
-                    controller.passwordField.clear();
-                }
-                if (msg.startsWith("/alreadyLoggedIn")) {
-                    controller.setErrorText("Пользователь уже авторизован");
-                    controller.loginField.clear();
-                    controller.passwordField.clear();
-                }
-                if (msg.startsWith("/authok")) {
-                    final String[] split = msg.split("\\s+");
-                    final String nick = split[1];
-                    controller.addMessage("Успешная авторизация под ником " + nick);
-                    controller.toggleBoxesVisibility(true);
-                    break;
+                if (Command.isCommand(msg)) {
+                    final Command command = Command.getCommand(msg);
+                    final String[] params = command.parse(msg);
+                    if (Command.getCommand(msg) == Command.END) {
+                        isDisconnecting = true;
+                        break;
+                    }
+                    if (command == Command.ERROR) {
+                        controller.setErrorText(params);
+                        controller.loginField.clear();
+                        controller.passwordField.clear();
+                    }
+                    if (command == Command.AUTHOK) {
+                        final String[] split = msg.split("\\s+");
+                        final String nick = split[1];
+                        controller.addMessage("Успешная авторизация под ником " + nick);
+                        controller.toggleBoxesVisibility(true);
+                        break;
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -117,5 +126,9 @@ public class ChatClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void sendMessage(final Command command, final String... params) {
+        sendMessage(command.collectMessage(params));
     }
 }

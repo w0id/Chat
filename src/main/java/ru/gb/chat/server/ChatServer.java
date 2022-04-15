@@ -1,24 +1,22 @@
 package ru.gb.chat.server;
 
+import ru.gb.chat.Command;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatServer {
 
-    private final AuthService authService;
-    private final List<ClientHandler> clients;
+    private final Map<String, ClientHandler> clients;
 
-    public ChatServer() {
-        authService = new InMemoryAuthService();
-        clients = new ArrayList<>();
-    }
+    public ChatServer() { this.clients = new HashMap<>(); }
 
     public void run() {
-        try (ServerSocket serverSocket = new ServerSocket(9000)) {
-            authService.start();
+        try (ServerSocket serverSocket = new ServerSocket(9000);
+        AuthService authService = new InMemoryAuthService()) {
             while (true) {
                 System.out.println("Ожидаем подключения клиента...");
                 final Socket socket = serverSocket.accept();
@@ -31,24 +29,25 @@ public class ChatServer {
     }
 
 
-    public boolean isNickBusy(final String nick) {
-        for (final ClientHandler client : clients) {
-            if (client.getNick().equals(nick)) {
-                return true;
-            }
-        }
-        return false;
-    }
+    public boolean isNickBusy(String nick) { return clients.containsKey(nick); }
 
     public void broadcast(final String message) {
-        clients.forEach(client -> client.sendMessage(message));
+        clients.values().forEach(client -> client.sendMessage(message));
     }
 
     public void subscribe(final ClientHandler client) {
-        clients.add(client);
+        clients.put(client.getNick(), client);
     }
 
-    public void unsubscribe(final ClientHandler client) {
-        clients.remove(client);
+    public void unsubscribe(final ClientHandler client) { clients.remove(client.getNick()); }
+
+    public void sendMessageToClient(final ClientHandler from, final String to, final String message) {
+        final ClientHandler receiver = clients.get(to);
+        if (receiver != null) {
+            receiver.sendMessage("от " + from.getNick() + ": " + message);
+            from.sendMessage("Пользователю " + to + ": " + message);
+        } else {
+            from.sendMessage(Command.ERROR, "Пользователя с ником " + to + " нет в чате!");
+        }
     }
 }
