@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="5.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.gb.chat.client.ClientController">
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </padding>
+
+    <MenuBar>
+        <Menu text="Файл">
+            <MenuItem onAction="#exitChat" text="Выйти" />
+        </Menu>
+    </MenuBar>
+    <HBox fx:id="loginBox" alignment="TOP_CENTER">
+        <TextField fx:id="loginField" promptText="Login" />
+        <PasswordField fx:id="passwordField" promptText="Password" />
+        <Button fx:id="authButton" onAction="#authButtonClick" text="Вход" />
+    </HBox>
+    <VBox fx:id="messageBox" visible="false" VBox.vgrow="ALWAYS">
+        <TextArea fx:id="messageArea" editable="false" VBox.vgrow="ALWAYS">
+         <VBox.margin>
+            <Insets bottom="5.0" />
+         </VBox.margin></TextArea>
+        <HBox spacing="10">
+            <TextField fx:id="messageField" HBox.hgrow="ALWAYS" />
+            <Button fx:id="sendButton" defaultButton="true" onAction="#sendMessage" text="Отправить" />
+        </HBox>
+    </VBox>
+</VBox>

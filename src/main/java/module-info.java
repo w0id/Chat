@@ -2,7 +2,6 @@ module ru.gb.chat {
     requires javafx.controls;
     requires javafx.fxml;
 
-
-    opens ru.gb.chat to javafx.fxml;
-    exports ru.gb.chat;
+    exports ru.gb.chat.client;
+    opens ru.gb.chat.client to javafx.fxml;
 }
