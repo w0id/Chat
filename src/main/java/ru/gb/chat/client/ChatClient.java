@@ -1,11 +1,16 @@
 package ru.gb.chat.client;
 
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import ru.gb.chat.Command;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Optional;
 
 public class ChatClient {
 
@@ -13,6 +18,7 @@ public class ChatClient {
     private DataOutputStream out;
     private final ClientController controller;
     private boolean isDisconnecting;
+    private boolean logout;
     private Socket socket;
 
     public ChatClient(final ClientController controller) {
@@ -30,11 +36,14 @@ public class ChatClient {
                     readMessage();
                 }
             } finally {
-                controller.messageArea.clear();
-                try {
-                    openConnection();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (logout) {
+                    controller.messageArea.clear();
+                    logout = false;
+                    try {
+                        openConnection();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();
@@ -72,6 +81,7 @@ public class ChatClient {
                     final Command command = Command.getCommand(msg);
                     final String[] params = command.parse(msg);
                     if (command == Command.END) {
+                        logout = true;
                         controller.toggleBoxesVisibility(false);
                         closeConnection();
                         break;
@@ -91,14 +101,38 @@ public class ChatClient {
     private void waitAuth() {
         while (true) {
             try {
+                Thread thread = new Thread(() -> {
+                    try {
+                        Thread.sleep(120000);
+                        closeConnection();
+                        Platform.runLater(() -> {
+                            final Alert alert = new Alert(Alert.AlertType.ERROR,"Время ожидания истекло",
+                                    new ButtonType("Повторить попытку", ButtonBar.ButtonData.OK_DONE),
+                                    new ButtonType("Выйти", ButtonBar.ButtonData.CANCEL_CLOSE));
+                            alert.setTitle("Ошибка подключения");
+                            final Optional<ButtonType> buttonType = alert.showAndWait();
+                            final Boolean isExit = buttonType.map(btn -> btn.getButtonData().isCancelButton()).orElse(false);
+                            final Boolean isRetry = buttonType.map(btn -> btn.getButtonData().isDefaultButton()).orElse(false);
+                            if (isExit) {
+                                System.exit(0);
+                            } else if (isRetry) {
+                                try {
+                                    isDisconnecting = false;
+                                    openConnection();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                });
+                thread.start();
                 final String msg = in.readUTF();
                 if (Command.isCommand(msg)) {
                     final Command command = Command.getCommand(msg);
                     final String[] params = command.parse(msg);
-                    if (Command.getCommand(msg) == Command.END) {
-                        isDisconnecting = true;
-                        break;
-                    }
                     if (command == Command.ERROR) {
                         controller.setErrorText(params);
                         controller.loginField.clear();
@@ -107,6 +141,8 @@ public class ChatClient {
                     if (command == Command.AUTHOK) {
                         final String[] split = msg.split("\\s+");
                         final String nick = split[1];
+                        logout = false;
+                        thread.interrupt();
                         controller.addMessage("Успешная авторизация под ником " + nick);
                         controller.toggleBoxesVisibility(true);
                         break;
