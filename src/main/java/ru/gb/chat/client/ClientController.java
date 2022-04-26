@@ -1,10 +1,11 @@
 package ru.gb.chat.client;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import ru.gb.chat.Command;
 
 import java.io.IOException;
@@ -26,16 +27,28 @@ public class ClientController {
     @FXML
     public Button authButton;
     @FXML
-    public VBox messageBox;
+    public HBox messageBox;
     @FXML
     public Button sendButton;
+    @FXML
+    public ListView<String> clientList;
+    @FXML
+    public Button registerButton;
 
     private final Alert emptyMessageField = new Alert(Alert.AlertType.WARNING,"Введите текст сообщения", ButtonType.OK);
+
 
     public void setErrorText(String[] errorText) {
         Platform.runLater(() -> {
             Alert authError = new Alert(Alert.AlertType.ERROR, errorText[0], ButtonType.OK);
             authError.showAndWait();
+        });
+    }
+
+    public void setNotificationText(String[] notificationText) {
+        Platform.runLater(() -> {
+            Alert notification = new Alert(Alert.AlertType.INFORMATION, notificationText[0], ButtonType.OK);
+            notification.showAndWait();
         });
     }
 
@@ -98,5 +111,26 @@ public class ClientController {
         if (isExit) {
             System.exit(0);
         }
+    }
+
+    public void selectClient(final MouseEvent mouseEvent) {
+        if (mouseEvent.getClickCount() == 2) {
+            final String message = messageField.getText();
+            final String nick = clientList.getSelectionModel().getSelectedItem();
+            messageField.setText(Command.PRIVATE_MESSAGE.collectMessage(nick, message));
+            messageField.requestFocus();
+            messageField.selectEnd();
+        }
+    }
+
+    public void updateClients(String[] params) {
+        Platform.runLater(() -> {
+            clientList.getItems().clear();
+            clientList.getItems().addAll(params);
+        });
+    }
+
+    public void registerButtonClick(final ActionEvent actionEvent) {
+        client.sendMessage(Command.REGISTER, loginField.getText(), passwordField.getText());
     }
 }

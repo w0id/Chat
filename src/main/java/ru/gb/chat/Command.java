@@ -15,6 +15,13 @@ public enum Command {
             return new String[]{split[1], split[2]};
         }
     },
+    REGISTER("/register") {
+        @Override
+        public String[] parse(final String commandText) {
+            final String[] split = commandText.split(COMMAND_DELIMITER);
+            return new String[]{split[1], split[2]};
+        }
+    },
     AUTHOK("/authok") {
         @Override
         public String[] parse(final String commandText) {
@@ -28,6 +35,13 @@ public enum Command {
             return new String[]{split[1], split[2]};
         }
     },
+    NICK("/nick") {
+        @Override
+        public String[] parse(final String commandText) {
+            final String[] split = commandText.split(COMMAND_DELIMITER);
+            return new String[]{split[1]};
+        }
+    },
     END("/end") {
         @Override
         public String[] parse(final String commandText) {
@@ -39,6 +53,13 @@ public enum Command {
         public String[] parse(final String commandText) {
             final String errorMsg = commandText.split(COMMAND_DELIMITER, 2)[1];
             return new String[]{errorMsg};
+        }
+    },
+    REGISTEROK("/notification") {
+        @Override
+        public String[] parse(final String commandText) {
+            final String notificationMsg = commandText.split(COMMAND_DELIMITER, 2)[1];
+            return new String[]{notificationMsg};
         }
     },
     CLIENTS("/clients") {

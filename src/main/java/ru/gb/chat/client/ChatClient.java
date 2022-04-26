@@ -89,6 +89,13 @@ public class ChatClient {
                     if (command == Command.ERROR) {
                         controller.setErrorText(params);
                     }
+                    if (command == Command.REGISTEROK) {
+                        controller.setNotificationText(params);
+                    }
+                    if (command == Command.CLIENTS) {
+                        controller.updateClients(params);
+                        continue;
+                    }
                 } else {
                     controller.addMessage(msg);
                 }
@@ -138,11 +145,16 @@ public class ChatClient {
                         controller.loginField.clear();
                         controller.passwordField.clear();
                     }
+                    if (command == Command.REGISTEROK) {
+                        thread.interrupt();
+                        controller.setNotificationText(params);
+                    }
                     if (command == Command.AUTHOK) {
                         final String[] split = msg.split("\\s+");
                         final String nick = split[1];
                         logout = false;
                         thread.interrupt();
+                        System.out.println(thread.isInterrupted());
                         controller.addMessage("Успешная авторизация под ником " + nick);
                         controller.toggleBoxesVisibility(true);
                         break;

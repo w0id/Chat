@@ -1,10 +1,12 @@
 package ru.gb.chat.server;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InMemoryAuthService implements AuthService {
 
+    private Connection connection;
     private final List<UserData> users;
     private static class UserData {
         private final String login;
@@ -26,13 +28,71 @@ public class InMemoryAuthService implements AuthService {
     }
 
     @Override
-    public String getNickByLoginAndPassword(String login, String password) {
-        for (UserData user : users) {
-            if (user.login.equals(login) && user.password.equals(password)) {
-                return user.nick;
+    public String register(final String login, final String password) {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:chat.db")) {
+            connection.setAutoCommit(false);
+            try (PreparedStatement nicksStatement = connection.prepareStatement("INSERT INTO nicks (nick) VALUES (?) ");
+                    PreparedStatement usersStatement = connection.prepareStatement("INSERT INTO users (login, password, nick) " +
+                            "VALUES (?, ?, (SELECT id FROM nicks WHERE nicks.nick = ?))")) {
+                nicksStatement.setString(1,login);
+                nicksStatement.executeUpdate();
+                usersStatement.setString(1,login);
+                usersStatement.setString(2,password);
+                usersStatement.setString(3,login);
+                usersStatement.executeUpdate();
+                connection.commit();
+                return getNickByLoginAndPassword(login, password);
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public String getNickByLoginAndPassword(String login, String password) {
+//        for (UserData user : users) {
+//            if (user.login.equals(login) && user.password.equals(password)) {
+//                return user.nick;
+//            }
+//        }
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:chat.db")) {
+            return selectNickByLogin(connection, login, password);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String selectNickByLogin(final Connection connection, String login, String password) {
+        try (PreparedStatement statement = connection.prepareStatement("SELECT n.nick FROM nicks n INNER JOIN users u on u.nick = n.id WHERE u.login = ? AND u.password = ?")) {
+            statement.setString(1, login);
+            statement.setString(2, password);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()) {
+                return rs.getString("nick");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void changeNick(String oldNick, String newNick) {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:chat.db")) {
+            try (PreparedStatement statement = connection.prepareStatement("UPDATE nicks SET nick = ? WHERE nick = ?")) {
+                statement.setString(1, newNick);
+                statement.setString(2, oldNick);
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

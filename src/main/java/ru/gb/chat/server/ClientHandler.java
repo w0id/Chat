@@ -83,6 +83,16 @@ public class ClientHandler {
                         final String[] params = command.parse(msg);
                         server.sendMessageToClient(this, params[0], params[1]);
                     }
+                    if (command == Command.NICK) {
+                        final String[] params = command.parse(msg);
+                        server.unsubscribe(this);
+                        authService.changeNick(nick, params[0]);
+                        String changeNickMsg = "Ник пользователя " + nick + " изменен на " + params[0];
+                        nick = params[0];
+                        server.subscribe(this);
+                        server.broadcast(changeNickMsg);
+//                        server.sendMessageToClient(this, params[0], params[1]);
+                    }
                 } else {
                     System.out.println("Получено сообщение: " + msg);
                     server.broadcast(nick + ": " + msg);
@@ -108,7 +118,8 @@ public class ClientHandler {
                     if (command == Command.AUTH) {
                         final String login = params[0];
                         final String password = params[1];
-                        final String nick = authService.getNickByLoginAndPassword(login, password);
+//                        final String nick = authService.getNickByLoginAndPassword(login, password);
+                        nick = authService.getNickByLoginAndPassword(login, password);
                         if (nick != null) {
                             if (server.isNickBusy(nick)) {
                                 sendMessage(Command.ERROR, "Пользователь уже авторизован");
@@ -121,6 +132,16 @@ public class ClientHandler {
                             break;
                         } else {
                             sendMessage(Command.ERROR,"Неверный логин или пароль");
+                        }
+                    }
+                    if (command == Command.REGISTER) {
+                        final String login = params[0];
+                        final String password = params[1];
+                        nick = authService.register(login, password);
+                        if (nick != null) {
+                            sendMessage(Command.REGISTEROK, "Пользователь успешно зарегистрирован");
+                        } else {
+                            sendMessage(Command.ERROR, "Ошибка регистрации!");
                         }
                     }
                 }

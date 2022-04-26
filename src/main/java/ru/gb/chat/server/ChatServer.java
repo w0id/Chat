@@ -31,15 +31,27 @@ public class ChatServer {
 
     public boolean isNickBusy(String nick) { return clients.containsKey(nick); }
 
-    public void broadcast(final String message) {
-        clients.values().forEach(client -> client.sendMessage(message));
+    private void broadcastClients() {
+        StringBuilder nicks = new StringBuilder();
+        clients.values().forEach(value -> nicks.append(value.getNick()).append(" "));
+        broarcast(Command.CLIENTS, nicks.toString().trim());
     }
+
+    private void broarcast(Command command, String nicks) {
+        clients.values().forEach(client -> client.sendMessage(command, nicks));
+    }
+
+    public void broadcast(final String message) { clients.values().forEach(client -> client.sendMessage(message)); }
 
     public void subscribe(final ClientHandler client) {
         clients.put(client.getNick(), client);
+        broadcastClients();
     }
 
-    public void unsubscribe(final ClientHandler client) { clients.remove(client.getNick()); }
+    public void unsubscribe(final ClientHandler client) {
+        clients.remove(client.getNick());
+        broadcastClients();
+    }
 
     public void sendMessageToClient(final ClientHandler from, final String to, final String message) {
         final ClientHandler receiver = clients.get(to);

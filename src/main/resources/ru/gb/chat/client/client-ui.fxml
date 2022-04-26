@@ -16,17 +16,35 @@
     </MenuBar>
     <HBox fx:id="loginBox" alignment="TOP_CENTER">
         <TextField fx:id="loginField" promptText="Login" />
-        <PasswordField fx:id="passwordField" promptText="Password" />
-        <Button fx:id="authButton" onAction="#authButtonClick" text="Вход" />
+        <PasswordField fx:id="passwordField" promptText="Password">
+         <HBox.margin>
+            <Insets left="5.0" />
+         </HBox.margin></PasswordField>
+        <Button fx:id="authButton" onAction="#authButtonClick" text="Вход">
+         <HBox.margin>
+            <Insets left="5.0" />
+         </HBox.margin></Button>
+      <Button fx:id="registerButton" onAction="#registerButtonClick" text="Регистрация">
+         <HBox.margin>
+            <Insets left="5.0" />
+         </HBox.margin>
+      </Button>
     </HBox>
-    <VBox fx:id="messageBox" visible="false" VBox.vgrow="ALWAYS">
-        <TextArea fx:id="messageArea" editable="false" VBox.vgrow="ALWAYS">
-         <VBox.margin>
-            <Insets bottom="5.0" />
-         </VBox.margin></TextArea>
-        <HBox spacing="10">
-            <TextField fx:id="messageField" HBox.hgrow="ALWAYS" />
-            <Button fx:id="sendButton" defaultButton="true" onAction="#sendMessage" text="Отправить" />
-        </HBox>
-    </VBox>
+    <HBox fx:id="messageBox" visible="false" VBox.vgrow="ALWAYS">
+        <ListView fx:id="clientList" maxWidth="200" minWidth="200" onMouseClicked="#selectClient" HBox.hgrow="ALWAYS">
+         <HBox.margin>
+            <Insets right="5.0" />
+         </HBox.margin></ListView>
+        <VBox spacing="5" HBox.hgrow="ALWAYS">
+            <TextArea fx:id="messageArea" editable="false" VBox.vgrow="ALWAYS">
+                <VBox.margin>
+                    <Insets bottom="5.0" />
+                </VBox.margin>
+            </TextArea>
+            <HBox spacing="10">
+                <TextField fx:id="messageField" HBox.hgrow="ALWAYS" />
+                <Button fx:id="sendButton" defaultButton="true" onAction="#sendMessage" text="Отправить" />
+            </HBox>
+        </VBox>
+    </HBox>
 </VBox>
