@@ -126,7 +126,7 @@ public class ClientHandler {
                                 continue;
                             }
                             sendMessage(Command.AUTHOK, nick);
-                            this.nick = nick;
+//                            this.nick = nick;
                             server.broadcast("Пользователь " + nick + " вошел в чат");
                             server.subscribe(this);
                             break;

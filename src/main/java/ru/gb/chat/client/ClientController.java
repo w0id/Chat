@@ -1,7 +1,6 @@
 package ru.gb.chat.client;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
@@ -130,7 +129,7 @@ public class ClientController {
         });
     }
 
-    public void registerButtonClick(final ActionEvent actionEvent) {
+    public void registerButtonClick() {
         client.sendMessage(Command.REGISTER, loginField.getText(), passwordField.getText());
     }
 }

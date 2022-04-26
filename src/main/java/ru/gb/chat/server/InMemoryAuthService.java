@@ -71,9 +71,9 @@ public class InMemoryAuthService implements AuthService {
             statement.setString(1, login);
             statement.setString(2, password);
             ResultSet rs = statement.executeQuery();
-            while (rs.next()) {
+//            while (rs.next()) {
                 return rs.getString("nick");
-            }
+//            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
