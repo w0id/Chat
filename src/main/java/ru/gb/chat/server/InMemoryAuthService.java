@@ -53,11 +53,6 @@ public class InMemoryAuthService implements AuthService {
 
     @Override
     public String getNickByLoginAndPassword(String login, String password) {
-//        for (UserData user : users) {
-//            if (user.login.equals(login) && user.password.equals(password)) {
-//                return user.nick;
-//            }
-//        }
         try (Connection connection = DriverManager.getConnection("jdbc:sqlite:chat.db")) {
             return selectNickByLogin(connection, login, password);
         } catch (SQLException e) {
@@ -71,9 +66,7 @@ public class InMemoryAuthService implements AuthService {
             statement.setString(1, login);
             statement.setString(2, password);
             ResultSet rs = statement.executeQuery();
-//            while (rs.next()) {
-                return rs.getString("nick");
-//            }
+            return rs.getString("nick");
         } catch (SQLException e) {
             e.printStackTrace();
         }

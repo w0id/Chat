@@ -91,7 +91,6 @@ public class ClientHandler {
                         nick = params[0];
                         server.subscribe(this);
                         server.broadcast(changeNickMsg);
-//                        server.sendMessageToClient(this, params[0], params[1]);
                     }
                 } else {
                     System.out.println("Получено сообщение: " + msg);
@@ -118,7 +117,6 @@ public class ClientHandler {
                     if (command == Command.AUTH) {
                         final String login = params[0];
                         final String password = params[1];
-//                        final String nick = authService.getNickByLoginAndPassword(login, password);
                         nick = authService.getNickByLoginAndPassword(login, password);
                         if (nick != null) {
                             if (server.isNickBusy(nick)) {
@@ -126,7 +124,6 @@ public class ClientHandler {
                                 continue;
                             }
                             sendMessage(Command.AUTHOK, nick);
-//                            this.nick = nick;
                             server.broadcast("Пользователь " + nick + " вошел в чат");
                             server.subscribe(this);
                             break;

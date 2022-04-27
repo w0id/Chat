@@ -47,7 +47,16 @@ public class ClientController {
     public void setNotificationText(String[] notificationText) {
         Platform.runLater(() -> {
             Alert notification = new Alert(Alert.AlertType.INFORMATION, notificationText[0], ButtonType.OK);
-            notification.showAndWait();
+            final Optional<ButtonType> buttonType = notification.showAndWait();
+            final Boolean isReadNotification = buttonType.map(btn -> btn.getButtonData().isDefaultButton()).orElse(false);
+            if (isReadNotification) {
+                try {
+                    client.isDisconnecting = false;
+                    client.openConnection();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         });
     }
 

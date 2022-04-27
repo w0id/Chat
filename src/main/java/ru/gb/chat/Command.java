@@ -74,7 +74,6 @@ public enum Command {
             .collect(Collectors.toMap(Command::getCommand, Function.identity()));
 
     private final String command;
-//    private final String[] params = new String[0];
 
     static final String COMMAND_DELIMITER = "\\s+";
 
@@ -85,10 +84,6 @@ public enum Command {
     public static boolean isCommand(String message) {
         return message.startsWith("/");
     }
-
-//    public String[] getParams() {
-//        return params;
-//    }
 
     public String getCommand() {
         return command;
@@ -102,15 +97,8 @@ public enum Command {
         final int index = message.indexOf(" ");
         final String cmd = index > 0 ? message.substring(0, index) : message;
 
-//        for (final Command value : Command.values()) {
-//            if (value.getCommand().equals(cmd)) {
-//                return value;
-//            }
-//        }
-//        return map.get(cmd);
         final Command command = map.get(cmd);
         if (command == null) {
-//            throw new RuntimeException("'" + cmd + "' unknown command");
             return ERROR;
         }
         return command;
