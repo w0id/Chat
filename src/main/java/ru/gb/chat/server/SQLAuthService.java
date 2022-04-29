@@ -87,6 +87,11 @@ public class SQLAuthService implements AuthService {
 
     @Override
     public void close() {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         System.out.println("Сервис аутентификации остановлен");
     }
 }
