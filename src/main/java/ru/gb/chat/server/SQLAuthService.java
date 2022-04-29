@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InMemoryAuthService implements AuthService {
+public class SQLAuthService implements AuthService {
 
     private Connection connection;
     private final List<UserData> users;
@@ -20,7 +20,12 @@ public class InMemoryAuthService implements AuthService {
         }
     }
 
-    public InMemoryAuthService() {
+    public SQLAuthService() {
+        try {
+            this.connection = DriverManager.getConnection("jdbc:sqlite:chat.db");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         users = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             users.add(new UserData("login" + i, "pass" + i, "nick" + i));
@@ -28,23 +33,23 @@ public class InMemoryAuthService implements AuthService {
     }
 
     @Override
-    public String register(final String login, final String password) {
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:chat.db")) {
+    public String register(final String login, final String password){
+        try {
             connection.setAutoCommit(false);
-            try (PreparedStatement nicksStatement = connection.prepareStatement("INSERT INTO nicks (nick) VALUES (?) ");
-                    PreparedStatement usersStatement = connection.prepareStatement("INSERT INTO users (login, password, nick) " +
-                            "VALUES (?, ?, (SELECT id FROM nicks WHERE nicks.nick = ?))")) {
-                nicksStatement.setString(1,login);
-                nicksStatement.executeUpdate();
-                usersStatement.setString(1,login);
-                usersStatement.setString(2,password);
-                usersStatement.setString(3,login);
-                usersStatement.executeUpdate();
-                connection.commit();
-                return getNickByLoginAndPassword(login, password);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        try (PreparedStatement nicksStatement = connection.prepareStatement("INSERT INTO nicks (nick) VALUES (?) ");
+                PreparedStatement usersStatement = connection.prepareStatement("INSERT INTO users (login, password, nick) " +
+                        "VALUES (?, ?, (SELECT id FROM nicks WHERE nicks.nick = ?))")) {
+            nicksStatement.setString(1,login);
+            nicksStatement.executeUpdate();
+            usersStatement.setString(1,login);
+            usersStatement.setString(2,password);
+            usersStatement.setString(3,login);
+            usersStatement.executeUpdate();
+            connection.commit();
+            return getNickByLoginAndPassword(login, password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -53,12 +58,7 @@ public class InMemoryAuthService implements AuthService {
 
     @Override
     public String getNickByLoginAndPassword(String login, String password) {
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:chat.db")) {
-            return selectNickByLogin(connection, login, password);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return selectNickByLogin(connection, login, password);
     }
 
     public String selectNickByLogin(final Connection connection, String login, String password) {
@@ -75,14 +75,11 @@ public class InMemoryAuthService implements AuthService {
 
     @Override
     public void changeNick(String oldNick, String newNick) {
-        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:chat.db")) {
-            try (PreparedStatement statement = connection.prepareStatement("UPDATE nicks SET nick = ? WHERE nick = ?")) {
-                statement.setString(1, newNick);
-                statement.setString(2, oldNick);
-                statement.executeUpdate();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+        try (PreparedStatement statement = connection.prepareStatement("UPDATE nicks SET nick = ? WHERE nick = ?")) {
+            statement.setString(1, newNick);
+            statement.setString(2, oldNick);
+            statement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
             e.printStackTrace();
         }
