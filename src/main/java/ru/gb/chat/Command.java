@@ -15,6 +15,13 @@ public enum Command {
             return new String[]{split[1], split[2]};
         }
     },
+    REGISTER("/register") {
+        @Override
+        public String[] parse(final String commandText) {
+            final String[] split = commandText.split(COMMAND_DELIMITER);
+            return new String[]{split[1], split[2]};
+        }
+    },
     AUTHOK("/authok") {
         @Override
         public String[] parse(final String commandText) {
@@ -26,6 +33,13 @@ public enum Command {
         public String[] parse(final String commandText) {
             final String[] split = commandText.split(COMMAND_DELIMITER, 3);
             return new String[]{split[1], split[2]};
+        }
+    },
+    NICK("/nick") {
+        @Override
+        public String[] parse(final String commandText) {
+            final String[] split = commandText.split(COMMAND_DELIMITER);
+            return new String[]{split[1]};
         }
     },
     END("/end") {
@@ -41,6 +55,13 @@ public enum Command {
             return new String[]{errorMsg};
         }
     },
+    REGISTEROK("/notification") {
+        @Override
+        public String[] parse(final String commandText) {
+            final String notificationMsg = commandText.split(COMMAND_DELIMITER, 2)[1];
+            return new String[]{notificationMsg};
+        }
+    },
     CLIENTS("/clients") {
         @Override
         public String[] parse(final String commandText) {
@@ -53,7 +74,6 @@ public enum Command {
             .collect(Collectors.toMap(Command::getCommand, Function.identity()));
 
     private final String command;
-//    private final String[] params = new String[0];
 
     static final String COMMAND_DELIMITER = "\\s+";
 
@@ -64,10 +84,6 @@ public enum Command {
     public static boolean isCommand(String message) {
         return message.startsWith("/");
     }
-
-//    public String[] getParams() {
-//        return params;
-//    }
 
     public String getCommand() {
         return command;
@@ -81,15 +97,8 @@ public enum Command {
         final int index = message.indexOf(" ");
         final String cmd = index > 0 ? message.substring(0, index) : message;
 
-//        for (final Command value : Command.values()) {
-//            if (value.getCommand().equals(cmd)) {
-//                return value;
-//            }
-//        }
-//        return map.get(cmd);
         final Command command = map.get(cmd);
         if (command == null) {
-//            throw new RuntimeException("'" + cmd + "' unknown command");
             return ERROR;
         }
         return command;

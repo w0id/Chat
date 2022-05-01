@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class ClientHandler {
     private final Socket socket;
@@ -83,6 +84,21 @@ public class ClientHandler {
                         final String[] params = command.parse(msg);
                         server.sendMessageToClient(this, params[0], params[1]);
                     }
+                    if (command == Command.NICK) {
+                        final String[] params = command.parse(msg);
+                        server.unsubscribe(this);
+                        try {
+                            authService.changeNick(nick, params[0]);
+                        } catch (SQLException e) {
+                            sendMessage(Command.ERROR, "Такой ник уже существует");
+                            e.printStackTrace();
+                            continue;
+                        }
+                        String changeNickMsg = "Ник пользователя " + nick + " изменен на " + params[0];
+                        nick = params[0];
+                        server.subscribe(this);
+                        server.broadcast(changeNickMsg);
+                    }
                 } else {
                     System.out.println("Получено сообщение: " + msg);
                     server.broadcast(nick + ": " + msg);
@@ -108,19 +124,28 @@ public class ClientHandler {
                     if (command == Command.AUTH) {
                         final String login = params[0];
                         final String password = params[1];
-                        final String nick = authService.getNickByLoginAndPassword(login, password);
+                        nick = authService.getNickByLoginAndPassword(login, password);
                         if (nick != null) {
                             if (server.isNickBusy(nick)) {
                                 sendMessage(Command.ERROR, "Пользователь уже авторизован");
                                 continue;
                             }
                             sendMessage(Command.AUTHOK, nick);
-                            this.nick = nick;
                             server.broadcast("Пользователь " + nick + " вошел в чат");
                             server.subscribe(this);
                             break;
                         } else {
                             sendMessage(Command.ERROR,"Неверный логин или пароль");
+                        }
+                    }
+                    if (command == Command.REGISTER) {
+                        final String login = params[0];
+                        final String password = params[1];
+                        nick = authService.register(login, password);
+                        if (nick != null) {
+                            sendMessage(Command.REGISTEROK, "Пользователь успешно зарегистрирован");
+                        } else {
+                            sendMessage(Command.ERROR, "Ошибка регистрации!");
                         }
                     }
                 }
