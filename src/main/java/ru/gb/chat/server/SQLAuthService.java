@@ -1,44 +1,22 @@
 package ru.gb.chat.server;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SQLAuthService implements AuthService {
 
     private Connection connection;
-    private final List<UserData> users;
-    private static class UserData {
-        private final String login;
-        private final String password;
-        private final String nick;
-
-        public UserData(String login, String password, String nick) {
-            this.login = login;
-            this.password = password;
-            this.nick = nick;
-        }
-    }
 
     public SQLAuthService() {
         try {
             this.connection = DriverManager.getConnection("jdbc:sqlite:chat.db");
+            this.connection.setAutoCommit(false);
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-        users = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            users.add(new UserData("login" + i, "pass" + i, "nick" + i));
         }
     }
 
     @Override
     public String register(final String login, final String password){
-        try {
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         try (PreparedStatement nicksStatement = connection.prepareStatement("INSERT INTO nicks (nick) VALUES (?) ");
                 PreparedStatement usersStatement = connection.prepareStatement("INSERT INTO users (login, password, nick) " +
                         "VALUES (?, ?, (SELECT id FROM nicks WHERE nicks.nick = ?))")) {
@@ -74,14 +52,14 @@ public class SQLAuthService implements AuthService {
     }
 
     @Override
-    public void changeNick(String oldNick, String newNick) {
+    public void changeNick(String oldNick, String newNick) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("UPDATE nicks SET nick = ? WHERE nick = ?")) {
             statement.setString(1, newNick);
             statement.setString(2, oldNick);
             statement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new SQLException(e);
         }
     }
 

@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class ClientHandler {
     private final Socket socket;
@@ -86,7 +87,13 @@ public class ClientHandler {
                     if (command == Command.NICK) {
                         final String[] params = command.parse(msg);
                         server.unsubscribe(this);
-                        authService.changeNick(nick, params[0]);
+                        try {
+                            authService.changeNick(nick, params[0]);
+                        } catch (SQLException e) {
+                            sendMessage(Command.ERROR, "Такой ник уже существует");
+                            e.printStackTrace();
+                            continue;
+                        }
                         String changeNickMsg = "Ник пользователя " + nick + " изменен на " + params[0];
                         nick = params[0];
                         server.subscribe(this);

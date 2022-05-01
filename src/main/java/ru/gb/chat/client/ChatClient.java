@@ -54,13 +54,13 @@ public class ChatClient {
             worker.interrupt();
         }
 
-        boolean isRunning() {
-            return running.get();
-        }
-
-        boolean isStopped() {
-            return stopped.get();
-        }
+//        boolean isRunning() {
+//            return running.get();
+//        }
+//
+//        boolean isStopped() {
+//            return stopped.get();
+//        }
 
         public void run() {
             running.set(true);
