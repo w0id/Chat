@@ -4,7 +4,7 @@ import java.io.*;
 
 public class ReverseRead {
 
-    private String historyFile;
+    private final String historyFile;
 
     @Override
     public String toString(){
@@ -29,7 +29,7 @@ public class ReverseRead {
             String line = null;
             try {
                 line = in.readLine();
-            } catch (IOException e) {
+            } catch (IOException | NullPointerException e) {
                 e.printStackTrace();
             }
             if (line == null) {
