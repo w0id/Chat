@@ -11,6 +11,7 @@ import java.util.Map;
 public class ChatServer {
 
     private final Map<String, ClientHandler> clients;
+    private final MessageHistory messageHistory = new MessageHistory();
 
     public ChatServer() { this.clients = new HashMap<>(); }
 
@@ -41,7 +42,10 @@ public class ChatServer {
         clients.values().forEach(client -> client.sendMessage(command, nicks));
     }
 
-    public void broadcast(final String message) { clients.values().forEach(client -> client.sendMessage(message)); }
+    public void broadcast(final String message) { clients.values().forEach(client -> {
+        client.sendMessage(message);
+        messageHistory.write(client.getNick(), message);
+    }); }
 
     public void subscribe(final ClientHandler client) {
         clients.put(client.getNick(), client);
@@ -57,7 +61,9 @@ public class ChatServer {
         final ClientHandler receiver = clients.get(to);
         if (receiver != null) {
             receiver.sendMessage("от " + from.getNick() + ": " + message);
+            messageHistory.write(to, "от " + from.getNick() + ": " + message);
             from.sendMessage("Пользователю " + to + ": " + message);
+            messageHistory.write(from.getNick(), "Пользователю " + to + ": " + message);
         } else {
             from.sendMessage(Command.ERROR, "Пользователя с ником " + to + " нет в чате!");
         }
