@@ -131,6 +131,12 @@ public class ClientHandler {
                                 continue;
                             }
                             sendMessage(Command.AUTHOK, nick);
+                            try {
+                                ReverseRead historyMessages = new ReverseRead(this.getNick() + ".txt");
+                                sendMessage(historyMessages.toString());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             server.broadcast("Пользователь " + nick + " вошел в чат");
                             server.subscribe(this);
                             break;
