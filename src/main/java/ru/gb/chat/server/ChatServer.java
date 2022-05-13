@@ -15,7 +15,7 @@ public class ChatServer {
     private final Map<String, ClientHandler> clients;
     private final MessageHistory messageHistory = new MessageHistory();
     private volatile char currentLetter = 'A';
-    public final ExecutorService executorService = Executors.newFixedThreadPool(15);
+    public final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
     public ChatServer() { this.clients = new HashMap<>(); }
 
