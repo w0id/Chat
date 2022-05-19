@@ -14,16 +14,15 @@ public class ChatServer {
 
     private final Map<String, ClientHandler> clients;
     private final MessageHistory messageHistory = new MessageHistory();
-    private volatile char currentLetter = 'A';
-    public final ExecutorService executorService = Executors.newFixedThreadPool(3);
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
 
     public ChatServer() { this.clients = new HashMap<>(); }
 
     public void run() {
-        executorService.execute(() -> print('A', 'B'));
-        executorService.execute(() -> print('B', 'C'));
-        executorService.execute(() -> print('C', 'A'));
-
         try (ServerSocket serverSocket = new ServerSocket(9000);
         AuthService authService = new SQLAuthService()) {
             while (true) {
@@ -37,32 +36,14 @@ public class ChatServer {
         }
     }
 
-    private synchronized void print(char prevLetter, char nextLetter) {
-        try {
-            for (int i = 0; i < 5; i++) {
-                while (currentLetter != prevLetter) {
-                    this.wait();
-                }
-                if (prevLetter == 'C') System.out.println(prevLetter);
-                else System.out.print(prevLetter);
-                currentLetter = nextLetter;
-                this.notifyAll();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
     public boolean isNickBusy(String nick) { return clients.containsKey(nick); }
-
     private void broadcastClients() {
         StringBuilder nicks = new StringBuilder();
         clients.values().forEach(value -> nicks.append(value.getNick()).append(" "));
-        broarcast(Command.CLIENTS, nicks.toString().trim());
+        broadcast(Command.CLIENTS, nicks.toString().trim());
     }
 
-    private void broarcast(Command command, String nicks) {
+    private void broadcast(Command command, String nicks) {
         clients.values().forEach(client -> client.sendMessage(command, nicks));
     }
 

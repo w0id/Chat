@@ -25,7 +25,7 @@ public class ClientHandler {
             this.out = new DataOutputStream(socket.getOutputStream());
             this.authService = authService;
 
-            server.executorService.execute(() -> {
+            server.getExecutorService().execute(() -> {
                 try {
                     authenticate();
                     if (!isDisconnecting) {

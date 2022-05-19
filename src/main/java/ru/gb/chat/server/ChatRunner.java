@@ -7,7 +7,7 @@ public class ChatRunner {
         try {
             chatServer.run();
         } finally {
-            chatServer.executorService.shutdown();
+            chatServer.getExecutorService().shutdown();
         }
     }
 }
