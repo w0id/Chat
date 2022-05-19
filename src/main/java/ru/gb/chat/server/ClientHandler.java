@@ -25,7 +25,7 @@ public class ClientHandler {
             this.out = new DataOutputStream(socket.getOutputStream());
             this.authService = authService;
 
-            new Thread(() -> {
+            server.getExecutorService().execute(() -> {
                 try {
                     authenticate();
                     if (!isDisconnecting) {
@@ -34,7 +34,7 @@ public class ClientHandler {
                 } finally {
                     closeConnection();
                 }
-            }).start();
+            });
         } catch (IOException e) {
             throw new RuntimeException("Ошибка создания подключения к клиенту", e);
         }

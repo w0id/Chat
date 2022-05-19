@@ -7,11 +7,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ChatServer {
 
     private final Map<String, ClientHandler> clients;
     private final MessageHistory messageHistory = new MessageHistory();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
 
     public ChatServer() { this.clients = new HashMap<>(); }
 
@@ -29,16 +36,14 @@ public class ChatServer {
         }
     }
 
-
     public boolean isNickBusy(String nick) { return clients.containsKey(nick); }
-
     private void broadcastClients() {
         StringBuilder nicks = new StringBuilder();
         clients.values().forEach(value -> nicks.append(value.getNick()).append(" "));
-        broarcast(Command.CLIENTS, nicks.toString().trim());
+        broadcast(Command.CLIENTS, nicks.toString().trim());
     }
 
-    private void broarcast(Command command, String nicks) {
+    private void broadcast(Command command, String nicks) {
         clients.values().forEach(client -> client.sendMessage(command, nicks));
     }
 

@@ -28,7 +28,9 @@ public class ReverseRead {
             count++;
             String line = null;
             try {
-                line = in.readLine();
+                if (in != null) {
+                    line = in.readLine();
+                }
             } catch (IOException | NullPointerException e) {
                 e.printStackTrace();
             }

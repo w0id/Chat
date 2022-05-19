@@ -6,10 +6,10 @@ public class ReverseLineInputStream extends InputStream {
 
     RandomAccessFile in;
 
-    long currentLineStart = -1;
-    long currentLineEnd = -1;
-    long currentPos = -1;
-    long lastPosInFile = -1;
+    long currentLineStart;
+    long currentLineEnd;
+    long currentPos;
+    long lastPosInFile;
 
     public ReverseLineInputStream(File file) throws FileNotFoundException {
         in = new RandomAccessFile(file, "r");
@@ -54,8 +54,7 @@ public class ReverseLineInputStream extends InputStream {
 
         if (currentPos < currentLineEnd ) {
             in.seek(currentPos++);
-            int readByte = in.readByte();
-            return readByte;
+            return in.readByte();
 
         }
         else if (currentPos < 0) {
