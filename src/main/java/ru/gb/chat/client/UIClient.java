@@ -18,8 +18,9 @@ public class UIClient extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(UIClient.class.getResource("client-ui.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 1024, 768);
-        stage.setMaximized(true);
+        Scene scene = new Scene(fxmlLoader.load(), 540, 380);
+//        Scene scene = new Scene(fxmlLoader.load(), 1024, 768);
+//        stage.setMaximized(true);
         stage.setTitle("My Cool Chat");
         stage.setScene(scene);
         stage.setOnCloseRequest(e -> {

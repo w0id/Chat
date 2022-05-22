@@ -1,9 +1,13 @@
 package ru.gb.chat.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.*;
 
 public class SQLAuthService implements AuthService {
 
+    private static final Logger log = LogManager.getLogger(ChatServer.class);
     private Connection connection;
 
     public SQLAuthService() {
@@ -11,7 +15,7 @@ public class SQLAuthService implements AuthService {
             this.connection = DriverManager.getConnection("jdbc:sqlite:chat.db");
             this.connection.setAutoCommit(false);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("error occured: {}", e);
         }
     }
 
@@ -29,7 +33,7 @@ public class SQLAuthService implements AuthService {
             connection.commit();
             return getNickByLoginAndPassword(login, password);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("error occured: {}", e);
         }
         return null;
     }
@@ -46,7 +50,7 @@ public class SQLAuthService implements AuthService {
             ResultSet rs = statement.executeQuery();
             return rs.getString("nick");
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("error occured: {}", e);
         }
         return null;
     }
@@ -59,6 +63,7 @@ public class SQLAuthService implements AuthService {
             statement.executeUpdate();
             connection.commit();
         } catch (SQLException e) {
+            log.error("error occured: {}", e);
             throw new SQLException(e);
         }
     }
@@ -68,8 +73,8 @@ public class SQLAuthService implements AuthService {
         try {
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("error occured: {}", e);
         }
-        System.out.println("Сервис аутентификации остановлен");
+        log.info("Сервис аутентификации остановлен");
     }
 }

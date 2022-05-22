@@ -1,9 +1,13 @@
 package ru.gb.chat.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 
 public class ReverseRead {
 
+    private static final Logger log = LogManager.getLogger(ChatServer.class);
     private final String historyFile;
 
     @Override
@@ -21,7 +25,7 @@ public class ReverseRead {
         try {
             in = new BufferedReader(new InputStreamReader(new ReverseLineInputStream(new File(historyFile))));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("error occured: {}", e);
         }
         StringBuilder sb = new StringBuilder();
         do {
@@ -32,7 +36,7 @@ public class ReverseRead {
                     line = in.readLine();
                 }
             } catch (IOException | NullPointerException e) {
-                e.printStackTrace();
+                log.error("error occured: {}", e);
             }
             if (line == null) {
                 break;

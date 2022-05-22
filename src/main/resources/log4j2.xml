@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--<Configuration xmlns="http://logging.apache.org/log4j/2.0/config">-->
+<Configuration>
+    <Appenders>
+        <Console name="cons" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} %msg%n"/>
+        </Console>
+        <File name="to_file" fileName="logfile.log" append="true">
+            <PatternLayout pattern="%-5p %d{HH:mm:ss.SSS} [%t] %C (%F:%L) - %m%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+<!--        <Logger name="ru.gb.chat.server.ChatServer" level="trace" additivity="false">-->
+<!--            <AppenderRef ref="cons"/>-->
+<!--            <AppenderRef ref="to_file"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="ru.gb.chat.server.ClientHandler" level="trace" additivity="false">-->
+<!--            <AppenderRef ref="cons"/>-->
+<!--            <AppenderRef ref="to_file"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="ru.gb.chat.server.SQLAuthService" level="trace" additivity="false">-->
+<!--            <AppenderRef ref="cons"/>-->
+<!--            <AppenderRef ref="to_file"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="ru.gb.chat.server.MessageHistory" level="trace" additivity="false">-->
+<!--            <AppenderRef ref="cons"/>-->
+<!--            <AppenderRef ref="to_file"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="ru.gb.chat.server.ReverseRead" level="debug" additivity="false">-->
+<!--            <AppenderRef ref="cons"/>-->
+<!--            <AppenderRef ref="to_file"/>-->
+<!--        </Logger>-->
+        <Root level="info">
+            <AppenderRef ref="cons"/>
+            <AppenderRef ref="to_file"/>
+        </Root>
+    </Loggers>
+</Configuration>

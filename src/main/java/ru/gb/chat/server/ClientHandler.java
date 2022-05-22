@@ -1,5 +1,7 @@
 package ru.gb.chat.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.gb.chat.Command;
 
 import java.io.DataInputStream;
@@ -9,6 +11,7 @@ import java.net.Socket;
 import java.sql.SQLException;
 
 public class ClientHandler {
+    private static final Logger log = LogManager.getLogger(ChatServer.class);
     private final Socket socket;
     private final ChatServer server;
     private String nick;
@@ -36,6 +39,7 @@ public class ClientHandler {
                 }
             });
         } catch (IOException e) {
+            log.error("Ошибка создания подключения к клиенту: {}", e);
             throw new RuntimeException("Ошибка создания подключения к клиенту", e);
         }
     }
@@ -54,16 +58,17 @@ public class ClientHandler {
                 socket.close();
             }
         } catch (IOException e) {
+            log.error("Ошибка отключения: {}", e);
             throw new RuntimeException("Ошибка отключения", e);
         }
     }
 
     public void sendMessage(String message) {
         try {
-            System.out.println("Отправляю сообщение: " + message);
+            log.info("Отправляю сообщение: " + message);
             out.writeUTF(message);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("error occured: {}", e);
         }
     }
 
@@ -91,7 +96,7 @@ public class ClientHandler {
                             authService.changeNick(nick, params[0]);
                         } catch (SQLException e) {
                             sendMessage(Command.ERROR, "Такой ник уже существует");
-                            e.printStackTrace();
+                            log.error("error occured: {}", e);
                             continue;
                         }
                         String changeNickMsg = "Ник пользователя " + nick + " изменен на " + params[0];
@@ -100,11 +105,11 @@ public class ClientHandler {
                         server.broadcast(changeNickMsg);
                     }
                 } else {
-                    System.out.println("Получено сообщение: " + msg);
+                    log.info("Получено сообщение: " + msg);
                     server.broadcast(nick + ": " + msg);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("error occured: {}", e);
                 break;
             }
         }
@@ -135,7 +140,7 @@ public class ClientHandler {
                                 ReverseRead historyMessages = new ReverseRead(this.getNick() + ".txt");
                                 sendMessage(historyMessages.toString());
                             } catch (Exception e) {
-                                e.printStackTrace();
+                                log.error("error occured: {}", e);
                             }
                             server.broadcast("Пользователь " + nick + " вошел в чат");
                             server.subscribe(this);
@@ -156,7 +161,7 @@ public class ClientHandler {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("error occured: {}", e);
                 isDisconnecting = true;
                 break;
             }

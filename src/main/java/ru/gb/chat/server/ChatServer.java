@@ -1,5 +1,7 @@
 package ru.gb.chat.server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import ru.gb.chat.Command;
 
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.util.concurrent.Executors;
 
 public class ChatServer {
 
+    private static final Logger log = LogManager.getLogger(ChatServer.class);
     private final Map<String, ClientHandler> clients;
     private final MessageHistory messageHistory = new MessageHistory();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
@@ -26,12 +29,13 @@ public class ChatServer {
         try (ServerSocket serverSocket = new ServerSocket(9000);
         AuthService authService = new SQLAuthService()) {
             while (true) {
-                System.out.println("Ожидаем подключения клиента...");
+                log.info("Ожидаем подключения клиента...");
                 final Socket socket = serverSocket.accept();
-                System.out.println("Клиент подключился");
+                log.info("Клиент подключился");
                 new ClientHandler(socket, this, authService);
             }
         } catch (IOException e) {
+            log.error("Ошибка сервера: {}", e);
             throw new RuntimeException("Ошибка сервера", e);
         }
     }
